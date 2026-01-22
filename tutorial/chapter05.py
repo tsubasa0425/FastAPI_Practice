@@ -7,6 +7,9 @@ FastAPI的依赖注入系统
 - 增强安全、认证和角色管理
 
 
+
+注入依赖详解: https://www.cnblogs.com/ymtianyu/p/19459620
+
 '''
 
 
