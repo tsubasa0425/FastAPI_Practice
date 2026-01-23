@@ -34,8 +34,7 @@ app.include_router(app05, prefix='/chapter05', tags=['第五章 FastAPI的依赖
 app.include_router(app06, prefix='/chapter06', tags=['第六章 安全、认证和授权'])
 app.include_router(app07, prefix='/chapter07', tags=['第七章 FastAPI的数据库操作和多应用的目录结构设计'])
 app.include_router(application, prefix='/covid19', tags=['新冠病毒疫情跟踪器API'])
-
-# app.include_router(app08, prefix='/chapter08', tags=['chapter08'])
+app.include_router(app08, prefix='/chapter08', tags=['第八章 中间件、CORS、后台任务、测试用例'])
 
 
 
@@ -76,6 +75,58 @@ async def validation_exception_handler(request, exc):
 
 ''' ************** *********************** ************** '''
 
+
+
+
+''' ************** Chapter08 1.Middleware 中间件 ************** '''
+# 中间件：
+# 中间件是在请求处理过程中，FastAPI 会在每个请求到达路由处理函数之前调用中间件函数。
+# 中间件函数可以在请求处理过程中添加、修改或删除请求头、请求体、响应头、响应体等。
+# 中间件函数可以用于实现日志记录、性能监控、认证授权、CORS（跨域资源共享）等功能。
+
+import time
+from fastapi.requests import Request
+
+@app.middleware('http')
+async def add_process_time_header(request:Request, call_next):  # call_next将接收request请求作为参数
+    """
+    中间件函数，用于添加处理时间头信息。
+
+    :param request: 请求对象，包含请求信息。
+    :param call_next: 下一个中间件函数或路由处理函数。
+    :return: 响应对象，包含处理结果和头信息。
+    """
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers['X-Process-Time'] = str(process_time)  # 添加自定义的以“X-”开头的请求头
+    return response
+
+
+# ！！注意：带yield的依赖的退出部分的代码 和 后台任务 会在中间件之后运行！！
+
+''' ************** *********************** ************** '''
+
+''' ************** Chapter08 2.CORS (Cross-Origin Resource Sharing) 跨源资源共享 ************** '''
+
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# 域的概念：协议+域名+端口
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        'http://127.0.0.1',
+        'http://127.0.0.1:8080',
+    ],  # 允许的域
+    allow_credentials=True,
+    allow_methods=['*'],  # 允许所有方法
+    allow_headers=['*'],  # 允许所有头信息
+)
+
+
+''' ************** *********************** ************** '''
 
 
 if __name__ == '__main__':

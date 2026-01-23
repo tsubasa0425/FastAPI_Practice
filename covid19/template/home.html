@@ -20,7 +20,7 @@
             // 点击过滤按钮（id=filter）时，根据城市名称过滤数据
             $("#filter").click(function () {
                 const city = $("#city").val();
-                window.location.href = "http://" + window.location.host + "/covid-19?city=" + city;
+                window.location.href = "http://" + window.location.host + "/covid19?city=" + city;
             });
             // 点击同步按钮（id=sync）时，调用后端接口同步数据
             $("#sync").click(function () {

@@ -4,7 +4,7 @@ app07 = APIRouter()
 
 
 
-''' ************** 1. 【见covid-19】SQL (Relational) Databases FastAPI的数据库操作 ************** '''
+''' ************** 1. 【见covid19】SQL (Relational) Databases FastAPI的数据库操作 ************** '''
 
 
 

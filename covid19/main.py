@@ -70,6 +70,67 @@ def read_data_for_city(city:str=None, skip:int=0, limit:int=10, db: Session = De
 '''----------------------------------------------------------'''
 
 
+
+
+
+'''--------------- 后台任务接口 ---------------'''
+
+from fastapi.background import BackgroundTasks
+from pydantic import HttpUrl
+import requests
+from covid19.models import City, Data
+
+def bg_task(url:HttpUrl, db:Session):
+    """这里注意一个坑，不要在后台任务的参数中db: Session = Depends(get_db)这样导入依赖"""
+
+    city_data = requests.get(url=f"{url}?source=jhu&country_code=CN&timelines=false")
+    if city_data.status_code == 200:
+        # 将取得的数据更新到City表中
+        db.query(City).delete() # 同步数据前，先清空原有数据
+        for location in city_data.json()['locations']:
+            city = {
+                "province": location['province'],
+                "country": location['country'],
+                "country_code": "CN",
+                "country_population": location['country_population'],
+            }
+            crud.create_city(db=db, city=schemas.CreateCity(**city))
+        
+
+    
+    covid_data = requests.get(url=f"{url}?source=jhu&country_code=CN&timelines=true")
+    if covid_data.status_code == 200:
+        # 将取得的数据更新到Data表中
+        db.query(Data).delete() # 同步数据前，先清空原有数据
+        for city in covid_data.json()['locations']:
+            db_city = crud.get_city_by_name(db, city['province'])
+            for date, confirmed in city['timelines']['confirmed']['timeline'].items():
+                data = {
+                    "date": date.split('T')[0],     # 把'2020-12-31T00:00:00Z' 变成 ‘2020-12-31’
+                    "confirmed": confirmed,
+                    "deaths": city['timelines']['deaths']['timeline'][date],
+                    "recovered": 0   # 每个城市每天有多少人痊愈，这种数据没有
+                }
+                # 这个city_id是city表中的主键ID，不是coronavirus_data数据里的ID
+                crud.create_city_data(db=db, data=schemas.CreateData(**data), city_id=db_city.id)
+
+
+
+@application.get('/sync_coronavirus_data/jhu')
+def sync_coronavirus_data(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """
+    从John Hopkins University获取最新的COVID-19感染数据，并同步到数据库。
+    """
+    background_tasks.add_task(bg_task, url="https://coronavirus-tracker-api.herokuapp.com/v2/locations", db=db)
+    
+    return {'message': '正在同步后台数据...'}
+
+
+'''-----------------------------------------------------'''
+
+
+
+
 '''--------------- jinja2模板渲染前端页面 ---------------'''
 
 
@@ -86,5 +147,7 @@ def covid(request: Request, city:str = None, skip:int=0, limit:int=100, db: Sess
     return templates.TemplateResponse('home.html', {
         'request': request, 
         'data': data,
-        'sync_data_url':'covid19/sync_coronavirus_data/jhu'
+        'sync_data_url':'sync_coronavirus_data/jhu'
         })
+
+'''----------------------------------------------------------'''

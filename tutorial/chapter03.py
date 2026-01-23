@@ -95,7 +95,7 @@ def query_params_validate(
 from pydantic import BaseModel, Field
 
 class CityInfo(BaseModel):
-    name: str = Field(..., title="城市名称", description="城市名称非空", example="beijing") # example是示例值（不会被验证），给前端开发看的
+    name: str = Field(..., title="城市名称", description="城市名称非空", json_schema_extra={"example": "beijing"}) # example是示例值（不会被验证），给前端开发看的
     country: str
     country_code: str = None    # 给个默认值
     country_population:int = Field(default=800, ge=800, title="国家人口", description="必须大于等于800")    # 人口数量添加一个校验
