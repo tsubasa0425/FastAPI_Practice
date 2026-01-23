@@ -2,7 +2,7 @@ FastAPI入门课程：https://github.com/liaogx/fastapi-tutorial
 
 `covid-19`：课程最终形成的项目
 
-`run.py`：covid-19项目的运行文件
+`run.py`：covid19项目的运行文件
 
 `tutorial`：课程代码
 

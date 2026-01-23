@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 import uvicorn
 from tutorial import app03, app04, app05, app06, app07, app08  # 注意，必须在tutorial\__init__.py中导入
+from covid19 import application
 
 
 
@@ -31,7 +32,9 @@ app.include_router(app03, prefix='/chapter03', tags=['第三章 请求参数和�
 app.include_router(app04, prefix='/chapter04', tags=['第四章 响应处理和FastAPI配置'])
 app.include_router(app05, prefix='/chapter05', tags=['第五章 FastAPI的依赖注入系统'])
 app.include_router(app06, prefix='/chapter06', tags=['第六章 安全、认证和授权'])
-# app.include_router(app07, prefix='/chapter07', tags=['chapter07'])
+app.include_router(app07, prefix='/chapter07', tags=['第七章 FastAPI的数据库操作和多应用的目录结构设计'])
+app.include_router(application, prefix='/covid19', tags=['新冠病毒疫情跟踪器API'])
+
 # app.include_router(app08, prefix='/chapter08', tags=['chapter08'])
 
 
@@ -40,7 +43,7 @@ app.include_router(app06, prefix='/chapter06', tags=['第六章 安全、认证�
 
 from fastapi.staticfiles import StaticFiles
 # path是Http请求的路径，app是StaticFiles类的实例，directory是静态文件所在的目录，name是挂载的名称
-app.mount(path='/static', app=StaticFiles(directory='covid-19/static'), name='static')
+app.mount(path='/static', app=StaticFiles(directory='covid19/static'), name='static')
 # mount表示将某个目录下一个完全独立的应用挂载过来，这个不会在API交互文档中显示
 
 ''' ************** *********************** ************** '''

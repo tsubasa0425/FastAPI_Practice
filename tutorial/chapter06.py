@@ -10,8 +10,6 @@ OAuth2.0的授权模式
 
 from fastapi import APIRouter
 
-from pydantic_tutorial import user
-
 app06 = APIRouter()
 
 ''' ************** 1. OAuth2 密码模式和 FastAPI 的 OAuth2PasswordBearer ************** '''
@@ -204,7 +202,7 @@ def create_access_token(data:dict, expires_delta:Optional[timedelta]=None):
 
 # 写登录接口
 @app06.post('/jwt/token', response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm= Depends()):
+async def login_for_access_token(form_data: OAuth2PasswordBearer= Depends()):
     # 校验用户是否存在，密码是否正确
     user = jwt_authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
